@@ -12,8 +12,7 @@ fn build_jaso_bul(t: &dyn ToString) -> (Jaso, Bul) {
 }
 
 fn print_string(canvas: &mut WindowCanvas, texture: &Texture, x: i32, y: i32, text: &dyn ToString) {
-    let mut i = 0;
-    for c in text.to_string().chars() {
+    for (i, c) in text.to_string().chars().enumerate() {
         let (jaso, bul) = build_jaso_bul(&c);
 
         // 초성 벌과 자소
@@ -38,34 +37,39 @@ fn print_string(canvas: &mut WindowCanvas, texture: &Texture, x: i32, y: i32, te
             _ => sdl2::rect::Rect::new(0, 16 * 12, 16, 16),
         };
 
-        canvas.copy_ex(
-            &texture,
-            cho_rect,
-            sdl2::rect::Rect::new(x + i as i32 * 16, y, 16, 16),
-            0.0,
-            None,
-            false,
-            false,
-        );
-        canvas.copy_ex(
-            &texture,
-            mid_rect,
-            sdl2::rect::Rect::new(x + i as i32 * 16, y, 16, 16),
-            0.0,
-            None,
-            false,
-            false,
-        );
-        canvas.copy_ex(
-            &texture,
-            jong_rect,
-            sdl2::rect::Rect::new(x + i as i32 * 16, y, 16, 16),
-            0.0,
-            None,
-            false,
-            false,
-        );
-        i += 1;
+        canvas
+            .copy_ex(
+                texture,
+                cho_rect,
+                sdl2::rect::Rect::new(x + i as i32 * 16, y, 16, 16),
+                0.0,
+                None,
+                false,
+                false,
+            )
+            .unwrap();
+        canvas
+            .copy_ex(
+                texture,
+                mid_rect,
+                sdl2::rect::Rect::new(x + i as i32 * 16, y, 16, 16),
+                0.0,
+                None,
+                false,
+                false,
+            )
+            .unwrap();
+        canvas
+            .copy_ex(
+                texture,
+                jong_rect,
+                sdl2::rect::Rect::new(x + i as i32 * 16, y, 16, 16),
+                0.0,
+                None,
+                false,
+                false,
+            )
+            .unwrap();
     }
 }
 
@@ -80,7 +84,7 @@ fn main() -> Result<(), String> {
         .expect("Video System 설정불가");
 
     let mut canvas = window.into_canvas().build().expect("Canvas Setup 불가");
-    let mut texuture_creator = canvas.texture_creator();
+    let texuture_creator = canvas.texture_creator();
     let texture = texuture_creator
         .load_texture("assets/hangul-dkby-dinaru-2.png")
         .unwrap();
