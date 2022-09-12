@@ -5,7 +5,7 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-hangul_jaso = { path = "../hangul_jaso"}
+hangul_jaso = { git = "https://github.com/siabard/hangul_jaso"}
 
 [dependencies.sdl2]
 version = "0.35"

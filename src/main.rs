@@ -17,25 +17,25 @@ fn print_string(canvas: &mut WindowCanvas, texture: &Texture, x: i32, y: i32, te
         let (jaso, bul) = build_jaso_bul(&c);
 
         // 초성 벌과 자소
-        let cho_rect =
-            sdl2::rect::Rect::new(16 * (jaso.cho as i32), 16 * (bul.cho as i32 - 1), 16, 16);
+        let cho_rect = sdl2::rect::Rect::new(
+            16 * (jaso.cho as i32),
+            16 * (bul.cho.unwrap() as i32),
+            16,
+            16,
+        );
         // 중성 벌과 자소
         let mid_rect = sdl2::rect::Rect::new(
             16 * (jaso.mid as i32),
-            16 * (bul.mid as i32 - 1 + 8),
+            16 * (bul.mid.unwrap() as i32 + 8),
             16,
             16,
         );
         // 종성 벌과 자소
-        let jong_rect = if bul.jong > 0 {
-            sdl2::rect::Rect::new(
-                16 * (jaso.jong as i32),
-                16 * (bul.jong as i32 - 1 + 12),
-                16,
-                16,
-            )
-        } else {
-            sdl2::rect::Rect::new(0, 16 * 12, 16, 16)
+        let jong_rect = match bul.jong {
+            Some(jong) => {
+                sdl2::rect::Rect::new(16 * (jaso.jong as i32), 16 * (jong as i32 + 12), 16, 16)
+            }
+            _ => sdl2::rect::Rect::new(0, 16 * 12, 16, 16),
         };
 
         canvas.copy_ex(
