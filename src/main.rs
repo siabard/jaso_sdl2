@@ -13,7 +13,13 @@ fn build_jaso_bul(t: &dyn ToString) -> (Jaso, Bul) {
     (jaso, bul)
 }
 
-fn print_ascii(canvas: &mut WindowCanvas, texture: &Texture, x: i32, y: i32, i: usize, c: &char) {
+fn print_ascii(
+    canvas: &mut WindowCanvas,
+    texture: &Texture,
+    x: i32,
+    y: i32,
+    c: &char,
+) -> (i32, i32) {
     // 아스키 코드를 기준으로 row, col을 정한다.
     let row = (*c as i32) / 16;
     let col = (*c as i32) % 16;
@@ -22,16 +28,23 @@ fn print_ascii(canvas: &mut WindowCanvas, texture: &Texture, x: i32, y: i32, i: 
         .copy_ex(
             texture,
             sdl2::rect::Rect::new(col * 8, row * 16, 8, 16),
-            sdl2::rect::Rect::new(x + i as i32 * 16, y, 8, 16),
+            sdl2::rect::Rect::new(x, y, 8, 16),
             0.0,
             None,
             false,
             false,
         )
         .unwrap();
+    (x + 8, y)
 }
 
-fn print_hangul(canvas: &mut WindowCanvas, texture: &Texture, x: i32, y: i32, i: usize, c: &char) {
+fn print_hangul(
+    canvas: &mut WindowCanvas,
+    texture: &Texture,
+    x: i32,
+    y: i32,
+    c: &char,
+) -> (i32, i32) {
     let (jaso, bul) = build_jaso_bul(c);
 
     // 초성 벌과 자소
@@ -60,7 +73,7 @@ fn print_hangul(canvas: &mut WindowCanvas, texture: &Texture, x: i32, y: i32, i:
         .copy_ex(
             texture,
             cho_rect,
-            sdl2::rect::Rect::new(x + i as i32 * 16, y, 16, 16),
+            sdl2::rect::Rect::new(x, y, 16, 16),
             0.0,
             None,
             false,
@@ -71,7 +84,7 @@ fn print_hangul(canvas: &mut WindowCanvas, texture: &Texture, x: i32, y: i32, i:
         .copy_ex(
             texture,
             mid_rect,
-            sdl2::rect::Rect::new(x + i as i32 * 16, y, 16, 16),
+            sdl2::rect::Rect::new(x, y, 16, 16),
             0.0,
             None,
             false,
@@ -82,13 +95,14 @@ fn print_hangul(canvas: &mut WindowCanvas, texture: &Texture, x: i32, y: i32, i:
         .copy_ex(
             texture,
             jong_rect,
-            sdl2::rect::Rect::new(x + i as i32 * 16, y, 16, 16),
+            sdl2::rect::Rect::new(x, y, 16, 16),
             0.0,
             None,
             false,
             false,
         )
         .unwrap();
+    (x + 16, y)
 }
 
 fn print_string(
@@ -98,15 +112,17 @@ fn print_string(
     y: i32,
     text: &dyn ToString,
 ) {
-    for (i, c) in text.to_string().chars().enumerate() {
+    let mut x = x;
+    let mut y = y;
+    for c in text.to_string().chars() {
         let code = utf8_to_ucs2(&c).unwrap();
         let lang = ucs2_language(code);
         let texture = (*textures).get(&lang).unwrap();
-        match lang {
-            Languages::Ascii => print_ascii(canvas, texture, x, y, i, &c),
-            Languages::Hangul => print_hangul(canvas, texture, x, y, i, &c),
-            _ => {}
-        }
+        (x, y) = match lang {
+            Languages::Ascii => print_ascii(canvas, texture, x, y, &c),
+            Languages::Hangul => print_hangul(canvas, texture, x, y, &c),
+            _ => (x, y),
+        };
     }
 }
 
@@ -128,7 +144,7 @@ fn main() -> Result<(), String> {
         .unwrap();
 
     let eng_texture = texture_creator
-        .load_texture("assets/ascii-light.png")
+        .load_texture("assets/ascii-plain.png")
         .unwrap();
 
     textures.insert(Languages::Hangul, &texture);
@@ -155,7 +171,14 @@ fn main() -> Result<(), String> {
             &textures,
             0,
             0,
-            &"다람쥐쳇바퀴돌았다 가나다 01234 ABCD".to_string(),
+            &"다람쥐쳇바퀴돌았다 가나다 01234 ABCD()-+_!@#$%^&*".to_string(),
+        );
+        print_string(
+            &mut canvas,
+            &textures,
+            0,
+            16,
+            &"동해물과 백두산이 마르고 닳도록".to_string(),
         );
         canvas.present();
     }

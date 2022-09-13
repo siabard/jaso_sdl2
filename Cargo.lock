@@ -23,7 +23,6 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 [[package]]
 name = "hangul_jaso"
 version = "0.0.1"
-source = "git+https://github.com/siabard/hangul_jaso#69c7ddb316337739382db16a4bf069ecdd58c301"
 
 [[package]]
 name = "jaso_sdl2"
