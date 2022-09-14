@@ -110,18 +110,29 @@ fn print_string(
     textures: &HashMap<Languages, &Texture>,
     x: i32,
     y: i32,
+    w: u32,
+    h: u32,
     text: &dyn ToString,
 ) {
-    let mut x = x;
-    let mut y = y;
+    let mut x_target = x;
+    let mut y_target = y;
     for c in text.to_string().chars() {
         let code = utf8_to_ucs2(&c).unwrap();
         let lang = ucs2_language(code);
         let texture = (*textures).get(&lang).unwrap();
-        (x, y) = match lang {
-            Languages::Ascii => print_ascii(canvas, texture, x, y, &c),
-            Languages::Hangul => print_hangul(canvas, texture, x, y, &c),
-            _ => (x, y),
+
+        if x_target > x + w as i32 {
+            x_target = x;
+            y_target += 16;
+        }
+
+        if y_target > y + h as i32 {
+            break;
+        }
+        (x_target, y_target) = match lang {
+            Languages::Ascii => print_ascii(canvas, texture, x_target, y_target, &c),
+            Languages::Hangul => print_hangul(canvas, texture, x_target, y_target, &c),
+            _ => (x_target, y_target),
         };
     }
 }
@@ -171,13 +182,17 @@ fn main() -> Result<(), String> {
             &textures,
             0,
             0,
+            220,
+            300,
             &"다람쥐쳇바퀴돌았다 가나다 01234 ABCD()-+_!@#$%^&*".to_string(),
         );
         print_string(
             &mut canvas,
             &textures,
             0,
-            16,
+            120,
+            150,
+            90,
             &"동해물과 백두산이 마르고 닳도록".to_string(),
         );
         canvas.present();
