@@ -7,6 +7,7 @@ edition = "2021"
 [dependencies]
 #hangul_jaso = { git = "https://github.com/siabard/hangul_jaso"}
 hangul_jaso = { path = "../hangul_jaso"}
+image = "0.24.5"
 
 [dependencies.sdl2]
 version = "0.35"
