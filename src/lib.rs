@@ -26,6 +26,11 @@ pub struct KoreanFonts {
     pub jong: Vec<Vec<u32>>,
 }
 
+pub enum Fonts {
+    Ascii(AsciiFonts),
+    Korean(KoreanFonts),
+}
+
 /// 아스키 문자를 출력하는 루틴
 /// 해당 문자가 텍스쳐로 들어있는 경우 사용한다.
 pub fn print_ascii(
