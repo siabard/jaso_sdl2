@@ -13,13 +13,13 @@ use sdl2::render::{Texture, WindowCanvas};
 use std::collections::HashMap;
 
 /// 비트 값으로 저장된 (8x16) 일반 아스키 폰트
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct AsciiFonts {
     pub fonts: Vec<Vec<u32>>,
 }
 
 /// 비트 값으로 저장된 (16x16) 한글 자소 폰트
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct KoreanFonts {
     pub cho: Vec<Vec<u32>>,
     pub mid: Vec<Vec<u32>>,
@@ -70,19 +70,11 @@ pub fn print_hangul(
     let (jaso, bul) = build_jaso_bul(c);
 
     // 초성 벌과 자소
-    let cho_rect = sdl2::rect::Rect::new(
-        16 * (jaso.cho as i32),
-        16 * (bul.cho.unwrap() as i32),
-        16,
-        16,
-    );
+    let cho_rect =
+        sdl2::rect::Rect::new(16 * (jaso.cho as i32), 16 * (bul.cho.unwrap() as i32), 16, 16);
     // 중성 벌과 자소
-    let mid_rect = sdl2::rect::Rect::new(
-        16 * (jaso.mid as i32),
-        16 * (bul.mid.unwrap() as i32 + 8),
-        16,
-        16,
-    );
+    let mid_rect =
+        sdl2::rect::Rect::new(16 * (jaso.mid as i32), 16 * (bul.mid.unwrap() as i32 + 8), 16, 16);
     // 종성 벌과 자소
     let jong_rect = match bul.jong {
         Some(jong) => {
@@ -92,37 +84,13 @@ pub fn print_hangul(
     };
 
     canvas
-        .copy_ex(
-            texture,
-            cho_rect,
-            sdl2::rect::Rect::new(x, y, 16, 16),
-            0.0,
-            None,
-            false,
-            false,
-        )
+        .copy_ex(texture, cho_rect, sdl2::rect::Rect::new(x, y, 16, 16), 0.0, None, false, false)
         .unwrap();
     canvas
-        .copy_ex(
-            texture,
-            mid_rect,
-            sdl2::rect::Rect::new(x, y, 16, 16),
-            0.0,
-            None,
-            false,
-            false,
-        )
+        .copy_ex(texture, mid_rect, sdl2::rect::Rect::new(x, y, 16, 16), 0.0, None, false, false)
         .unwrap();
     canvas
-        .copy_ex(
-            texture,
-            jong_rect,
-            sdl2::rect::Rect::new(x, y, 16, 16),
-            0.0,
-            None,
-            false,
-            false,
-        )
+        .copy_ex(texture, jong_rect, sdl2::rect::Rect::new(x, y, 16, 16), 0.0, None, false, false)
         .unwrap();
     (x + 16, y)
 }
@@ -169,11 +137,7 @@ pub fn image2hex(img: &DynamicImage, x: u32, y: u32, w: u32, h: u32) -> Vec<u32>
         for i in x..(x + w) {
             let digit: u32 = (w as i32 - i as i32 + x as i32) as u32 - 1;
 
-            let v = if (*img).get_pixel(i, j).0[3] == 0 {
-                0
-            } else {
-                2_u32.pow(digit)
-            };
+            let v = if (*img).get_pixel(i, j).0[3] == 0 { 0 } else { 2_u32.pow(digit) };
             cell += v;
         }
         rows.push(cell);
