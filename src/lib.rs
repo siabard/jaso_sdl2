@@ -1,6 +1,7 @@
 //! 한글 자소 문자를 SDL2로 화면에 출력하는 유틸리티
 
 use hangul_jaso::*;
+use image::io::Reader as ImageReader;
 use image::DynamicImage;
 use image::GenericImageView;
 use sdl2::gfx::primitives;
@@ -11,15 +12,16 @@ use sdl2::rect::Rect;
 use sdl2::render;
 use sdl2::render::{Texture, WindowCanvas};
 use std::collections::HashMap;
+use std::path::Path;
 
 /// 비트 값으로 저장된 (8x16) 일반 아스키 폰트
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct AsciiFonts {
     pub fonts: Vec<Vec<u32>>,
 }
 
 /// 비트 값으로 저장된 (16x16) 한글 자소 폰트
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct KoreanFonts {
     pub cho: Vec<Vec<u32>>,
     pub mid: Vec<Vec<u32>>,
@@ -262,4 +264,53 @@ pub fn draw_ascii_font(
             false,
         )
         .unwrap();
+}
+
+/// 파일을 읽어 폰트를 반환한다.
+pub fn build_ascii_fonts(path: &Path) -> AsciiFonts {
+    let mut eng_font = AsciiFonts::default();
+
+    let eng_img_font = ImageReader::open(path).unwrap().decode().unwrap();
+
+    // 영문 가로 16글자, 세로 8글자, 각 글자는 8x16
+    for y in 0..8 {
+        for x in 0..16 {
+            let rows = image2hex(&eng_img_font, x * 8, y * 16, 8, 16);
+            eng_font.fonts.push(rows);
+        }
+    }
+
+    eng_font
+}
+
+/// 한글 파일을 읽어 폰트를 반환한다.
+pub fn build_korean_fonts(path: &Path) -> KoreanFonts {
+    let han_img_font = ImageReader::open(path).unwrap().decode().unwrap();
+
+    let mut han_font = KoreanFonts::default();
+
+    // 한글 가로 28글자, 세로 16글자(8,4,4), 각 글자는 16x16
+    // 한글 초성 8벌 : 19 : 32*19*8 = 4864
+    for y in 0..8 {
+        for x in 0..19 {
+            let rows = image2hex(&han_img_font, x * 16, y * 16, 16, 16);
+            han_font.cho.push(rows);
+        }
+    }
+    // 한글 중성 4벌 : 21 : 32*21*4 = 2688
+    for y in 8..12 {
+        for x in 0..21 {
+            let rows = image2hex(&han_img_font, x * 16, y * 16, 16, 16);
+            han_font.mid.push(rows);
+        }
+    }
+    // 한글 종성 4벌 : 28 : 32*28*4 = 3584
+    for y in 12..16 {
+        for x in 0..28 {
+            let rows = image2hex(&han_img_font, x * 16, y * 16, 16, 16);
+            han_font.jong.push(rows);
+        }
+    }
+
+    han_font
 }
